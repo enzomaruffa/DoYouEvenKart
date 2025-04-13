@@ -5,7 +5,7 @@ const MAX_SPEED = 25.0
 const MAX_REVERSE_SPEED = 15.0  # Maximum reverse speed (lower than forward)
 const ACCELERATION = 15.0
 const BRAKE_FORCE = 25.0
-const MAX_STEERING_ANGLE = 60.0  # In degrees
+const MAX_STEERING_ANGLE = 140.0  # In degrees
 const STEERING_SPEED = 3.0
 const FRICTION = 0.02
 const GRIP = 0.7  # How much car resists sliding sideways (higher = less slide)

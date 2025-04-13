@@ -1,12 +1,18 @@
-[gd_scene load_steps=4 format=3 uid="uid://cd2gp6us0p7dn"]
+[gd_scene load_steps=6 format=3 uid="uid://cd2gp6us0p7dn"]
 
-[ext_resource type="Script" path="res://race_line.gd" id="1_36kn8"]
+[ext_resource type="Script" path="res://components/race_line/race_line.gd" id="1_36kn8"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_yhujl"]
 size = Vector3(7, 10, 1)
 
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_wuinp"]
+albedo_color = Color(0.129412, 1, 0.137255, 1)
+
 [sub_resource type="BoxMesh" id="BoxMesh_jx1l3"]
 size = Vector3(7, 10, 1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_nffgc"]
+albedo_color = Color(1, 0.152941, 0.14902, 1)
 
 [node name="RaceLine" type="Node3D"]
 script = ExtResource("1_36kn8")
@@ -20,6 +26,7 @@ shape = SubResource("BoxShape3D_yhujl")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="Entry"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.08165e-12, -4, -2.08165e-12)
+material_override = SubResource("StandardMaterial3D_wuinp")
 transparency = 0.2
 mesh = SubResource("BoxMesh_jx1l3")
 skeleton = NodePath("../../..")
@@ -33,6 +40,7 @@ shape = SubResource("BoxShape3D_yhujl")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="Exit"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.08165e-12, -4, -2.08165e-12)
+material_override = SubResource("StandardMaterial3D_nffgc")
 transparency = 0.2
 mesh = SubResource("BoxMesh_jx1l3")
 skeleton = NodePath("../..")

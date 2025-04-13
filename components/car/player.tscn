@@ -1,6 +1,6 @@
 [gd_scene load_steps=4 format=3 uid="uid://cn6psq2p04r5x"]
 
-[ext_resource type="Script" path="res://car_controller.gd" id="1_lkwsi"]
+[ext_resource type="Script" path="res://components/car/car_controller.gd" id="1_lkwsi"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_eewva"]
 size = Vector3(1, 0.6, 0.8)

@@ -1,6 +1,6 @@
 [gd_scene load_steps=4 format=3 uid="uid://cro6vhh5hrso1"]
 
-[ext_resource type="Script" path="res://checkered.gd" id="1_0fwxb"]
+[ext_resource type="Script" path="res://utils/checkered.gd" id="1_0fwxb"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_xx3l5"]
 size = Vector3(200, 2, 200)

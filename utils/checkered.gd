@@ -14,10 +14,6 @@ func create_uv_based_checkered_material(checker_size = 1.0, color1 = Color(0.1, 
 	
 	var texture = ImageTexture.create_from_image(img)
 	
-	# IMPORTANT: Disable texture filtering to get crisp edges
-	# In Godot 4.0+, we need to create the texture with the right filter mode
-	var texture_settings = ImageTexture.create_from_image(img)
-	
 	material.albedo_texture = texture
 	
 	# Disable texture filtering for sharp edges
