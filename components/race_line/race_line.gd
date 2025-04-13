@@ -1,3 +1,4 @@
+class_name RaceLine
 extends Node3D
 
 signal pass_completed(player)

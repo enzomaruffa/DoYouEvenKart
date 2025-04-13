@@ -11,6 +11,10 @@ const FRICTION = 0.02
 const GRIP = 0.7  # How much car resists sliding sideways (higher = less slide)
 const RESPAWN_HEIGHT = -30.0  # Y position below which the car will respawn
 
+# Add these properties to your car_controller.gd
+const GRAVITY_ALIGNMENT_STRENGTH = 5.0  # How quickly the car rights itself
+const GRAVITY_ALIGNMENT_MAX_ANGLE = 60.0  # Maximum angle before full correction force is applied
+
 # Get the gravity from the project settings to be synced with RigidBody nodes
 var gravity = ProjectSettings.get_setting("physics/3d/default_gravity")
 
@@ -30,6 +34,30 @@ func _ready():
 	# Store initial position and rotation for respawning
 	start_position = global_position
 	start_rotation = global_transform.basis.get_rotation_quaternion()
+
+# Add this function to your _physics_process after the gravity application
+func apply_ground_alignment(delta):
+	var target_up = get_floor_normal()
+	var car_up = transform.basis.y
+
+	var dot_product = target_up.dot(car_up)
+
+	if abs(dot_product) < 0.99:
+		# Calculate the angle between current up and target up
+		var angle = car_up.angle_to(target_up)
+
+		# Only apply correction if angle is significant
+		if angle > 0.01:  # About 0.57 degrees
+			# Calculate alignment force based on angle
+			var alignment_factor = clamp(angle / deg_to_rad(GRAVITY_ALIGNMENT_MAX_ANGLE), 0.0, 1.0)
+
+			# Create a rotation to align with the ground
+			var axis = car_up.cross(target_up).normalized()
+			if axis.length() > 0.001:  # Avoid zero cross product
+				var correction_rotation = Quaternion(axis, angle * alignment_factor * GRAVITY_ALIGNMENT_STRENGTH * delta)
+
+				# Apply the rotation
+				global_transform.basis = Basis(correction_rotation) * global_transform.basis
 
 func _physics_process(delta):
 	# Check if car needs to respawn
@@ -110,7 +138,13 @@ func _physics_process(delta):
 	# Calculate velocity
 	velocity.x = forward_direction.x * speed
 	velocity.z = forward_direction.z * speed
-	# Y velocity is set by gravity and not modified here
+
+	if not is_on_floor():
+		velocity.y -= gravity * delta * 1.2
+	else:
+		velocity.y = -0.1  # Small negative value to keep car grounded
+
+	apply_ground_alignment(delta)
 	
 	# Apply some sideways friction/grip
 	var sideways_velocity = right_direction.dot(Vector3(velocity.x, 0, velocity.z)) * right_direction
@@ -119,6 +153,8 @@ func _physics_process(delta):
 	
 	# Finally move the character
 	move_and_slide()
+
+
 
 func respawn():
 	if is_respawning:
