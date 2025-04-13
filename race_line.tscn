@@ -1,0 +1,38 @@
+[gd_scene load_steps=4 format=3 uid="uid://cd2gp6us0p7dn"]
+
+[ext_resource type="Script" path="res://race_line.gd" id="1_36kn8"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_yhujl"]
+size = Vector3(7, 10, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_jx1l3"]
+size = Vector3(7, 10, 1)
+
+[node name="RaceLine" type="Node3D"]
+script = ExtResource("1_36kn8")
+
+[node name="Entry" type="Area3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.08165e-12, 8, 0.5)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Entry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.08165e-12, -4, -2.08165e-12)
+shape = SubResource("BoxShape3D_yhujl")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Entry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.08165e-12, -4, -2.08165e-12)
+transparency = 0.2
+mesh = SubResource("BoxMesh_jx1l3")
+skeleton = NodePath("../../..")
+
+[node name="Exit" type="Area3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.08165e-12, 8, -0.5)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Exit"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.08165e-12, -4, -2.08165e-12)
+shape = SubResource("BoxShape3D_yhujl")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Exit"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.08165e-12, -4, -2.08165e-12)
+transparency = 0.2
+mesh = SubResource("BoxMesh_jx1l3")
+skeleton = NodePath("../..")
