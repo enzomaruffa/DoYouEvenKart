@@ -1,0 +1,16 @@
+[gd_scene load_steps=3 format=3 uid="uid://dn8m7b5wlrx1v"]
+
+[ext_resource type="PackedScene" uid="uid://cro6vhh5hrso1" path="res://ground.tscn" id="1_q1sih"]
+[ext_resource type="PackedScene" uid="uid://cn6psq2p04r5x" path="res://player.tscn" id="2_ydwqt"]
+
+[node name="Test" type="Node3D"]
+
+[node name="Ground" parent="." instance=ExtResource("1_q1sih")]
+
+[node name="Player" parent="." instance=ExtResource("2_ydwqt")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.819294, 0)
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(1, -6.72856e-16, -1.28963e-16, -1.28963e-16, -0.369747, 0.929133, -6.72856e-16, -0.929133, -0.369747, 100, 100, 2.08165e-12)
+light_color = Color(1, 1, 0.807843, 1)
+shadow_enabled = true
