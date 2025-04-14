@@ -23,7 +23,6 @@ func _ready():
 	# Show or hide buttons based on whether we're the host
 	var is_host = multiplayer.is_server()
 	start_button.visible = is_host
-	ready_button.visible = !is_host
 	
 	# Display IP address if we're the host
 	if is_host:

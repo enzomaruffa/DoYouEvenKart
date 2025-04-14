@@ -1,4 +1,4 @@
-class_name NetworkManager
+# class_name NetworkManager
 extends Node
 
 signal player_connected(id, player_info)
@@ -87,7 +87,7 @@ func _on_server_disconnected():
 	players.clear()
 	emit_signal("server_disconnected")
 
-@rpc("any_peer", "reliable")
+@rpc("any_peer", "call_local", "reliable")
 func register_player(info):
 	var sender_id = multiplayer.get_remote_sender_id()
 	
@@ -104,8 +104,9 @@ func add_player(id, info):
 	emit_signal("player_connected", id, info)
 	emit_signal("lobby_updated")
 
-@rpc("any_peer", "reliable")
+@rpc("any_peer", "call_local", "reliable")
 func set_player_ready(is_ready):
+	print("set_player_ready: ", is_ready)
 	var sender_id = multiplayer.get_remote_sender_id()
 	
 	if sender_id == 0: # This is us
@@ -117,8 +118,8 @@ func set_player_ready(is_ready):
 	emit_signal("lobby_updated")
 
 func is_everyone_ready():
-	if players.size() < 2:
-		return false
+	# if players.size() < 2:
+	# 	return false
 		
 	for id in players:
 		if not players[id].ready:
