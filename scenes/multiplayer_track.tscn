@@ -1,4 +1,4 @@
-[gd_scene load_steps=22 format=3 uid="uid://dtbgrhcnolptu"]
+[gd_scene load_steps=23 format=3 uid="uid://dtbgrhcnolptu"]
 
 [ext_resource type="Script" path="res://game_manager.gd" id="1_8mnyq"]
 [ext_resource type="Script" path="res://components/track_segment/track_segment.gd" id="1_xklif"]
@@ -6,6 +6,7 @@
 [ext_resource type="PackedScene" uid="uid://cd2gp6us0p7dn" path="res://components/race_line/race_line.tscn" id="4_ovff1"]
 [ext_resource type="Script" path="res://components/player_spawner.gd" id="5_cbm2h"]
 [ext_resource type="PackedScene" uid="uid://c0qrxi3thhd40" path="res://components/car/multiplayer_player.tscn" id="6_lsn8s"]
+[ext_resource type="PackedScene" uid="uid://cw5o0cntlmhhv" path="res://ui/race_ui.tscn" id="7_ubw3s"]
 
 [sub_resource type="Resource" id="Resource_tnwfo"]
 script = ExtResource("2_cu67c")
@@ -82,6 +83,9 @@ texture_filter = 0
 [node name="MultiplayerTrack" type="Node3D" node_paths=PackedStringArray("race_line")]
 script = ExtResource("1_8mnyq")
 race_line = NodePath("RaceLine")
+
+[node name="RaceUI" parent="." node_paths=PackedStringArray("game_manager") instance=ExtResource("7_ubw3s")]
+game_manager = NodePath("..")
 
 [node name="PlayerSpawner" type="Node" parent="." node_paths=PackedStringArray("race_line")]
 script = ExtResource("5_cbm2h")

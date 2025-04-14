@@ -54,18 +54,21 @@ func _ready():
 	
 	# Create player name label
 	var label_3d = Label3D.new()
+	label_3d.name = "Label3D"
 	label_3d.text = player_name
 	label_3d.position = Vector3(0, 1.0, 0)
 	label_3d.billboard = BaseMaterial3D.BILLBOARD_ENABLED
 	label_3d.font_size = 24
 	add_child(label_3d)
 	
-	# Set up multiplayer authority
-	set_multiplayer_authority(player_id)
-	is_local_player = player_id == multiplayer.get_unique_id()
-	
 	# Only enable camera for local player
-	$Camera3D.current = is_local_player
+	$Camera3D.current = is_multiplayer_authority()
+	
+	# Hide other players' cameras
+	if not is_multiplayer_authority():
+		$Camera3D.clear_current()
+		
+	print("Player ready: ", player_name, " (ID: ", str(player_id), ") Authority: ", is_multiplayer_authority())
 
 func apply_ground_alignment(delta):
 	var target_up = get_floor_normal()
@@ -219,7 +222,7 @@ func respawn():
 	# You could add respawn effects here
 	print("Car respawned!")
 
-@rpc("reliable")
+@rpc("any_peer", "unreliable")
 func sync_state(pos, rot, vel):
 	if not is_multiplayer_authority():
 		sync_pos = pos
@@ -230,6 +233,9 @@ func set_player_info(id, info):
 	player_id = id
 	player_name = info.name
 	player_color = info.color
+	
+	# Set authority based on the ID
+	set_multiplayer_authority(id)
 	
 	# Update visuals if the node is already ready
 	if is_inside_tree():
@@ -243,3 +249,8 @@ func set_player_info(id, info):
 		var label = get_node_or_null("Label3D")
 		if label:
 			label.text = player_name
+			
+		# Update camera (only for local player)
+		$Camera3D.current = is_multiplayer_authority()
+		
+	print("Set player info: ", player_name, " (ID: ", str(player_id), ")")

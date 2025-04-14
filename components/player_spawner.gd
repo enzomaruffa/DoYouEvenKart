@@ -7,7 +7,16 @@ extends Node
 var network_manager = null
 var spawned_players = {}
 
+# Use MultiplayerSpawner to handle player instantiation across the network
+@onready var spawner = MultiplayerSpawner.new()
+
 func _ready():
+	# Set up MultiplayerSpawner
+	spawner.name = "PlayerMultiplayerSpawner"
+	spawner.spawn_path = get_path()
+	spawner.add_spawnable_scene(multiplayer_player_scene.resource_path)
+	add_child(spawner)
+	
 	network_manager = get_node("/root/NetworkManager")
 	if not network_manager:
 		push_error("NetworkManager not found!")
@@ -44,18 +53,19 @@ func _on_player_disconnected(id):
 		spawned_players.erase(id)
 
 func spawn_player(id, player_info, position_index):
-	# Instance the player scene
-	var player_instance = multiplayer_player_scene.instantiate()
-	
-	# Set up player info
-	player_instance.set_player_info(id, player_info)
-	
-	# Add to group
-	if not player_instance.is_in_group(player_group):
-		player_instance.add_to_group(player_group)
-	
-	# Position the player using race_line
+	# Get starting position from race_line
 	var transform = race_line.get_start_position(position_index)
+	
+	# Use spawn_scene so all clients create the same player
+	var player_instance = multiplayer_player_scene.instantiate()
+	player_instance.name = str(id)
+	
+	# Set up player info before adding to the scene tree
+	player_instance.player_id = id
+	player_instance.player_name = player_info.name
+	player_instance.player_color = player_info.color
+	
+	# Position the player
 	player_instance.global_position = transform.origin
 	player_instance.global_transform.basis = transform.basis
 	
@@ -63,6 +73,12 @@ func spawn_player(id, player_info, position_index):
 	player_instance.start_position = transform.origin
 	player_instance.start_rotation = transform.basis.get_rotation_quaternion()
 	
+	# Add to group
+	if not player_instance.is_in_group(player_group):
+		player_instance.add_to_group(player_group)
+	
 	# Add to the game
 	add_child(player_instance, true)
 	spawned_players[id] = player_instance
+	
+	print("Spawned player: ", player_info.name, " with ID: ", id)

@@ -58,11 +58,21 @@ func _on_race_won(player):
 	race_in_progress = false
 
 	var race_time = (Time.get_ticks_msec() - race_start_time) / 1000.0
-	print("Player " + player.name + " won the race in " + str(race_time) + " seconds!")
+	var player_name = "Unknown"
+	
+	# Get player name if available
+	if "player_name" in player:
+		player_name = player.player_name
+	else:
+		player_name = player.name
+		
+	print("Player " + player_name + " won the race in " + str(race_time) + " seconds!")
 
 	emit_signal("race_completed", player, race_time)
-
-	restart_race()
+	
+	# Only the server should restart the race in multiplayer
+	if not multiplayer.has_multiplayer_peer() or multiplayer.is_server():
+		restart_race()
 
 
 func restart_race():
