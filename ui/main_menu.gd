@@ -3,6 +3,7 @@ extends Control
 @onready var host_button = $VBoxContainer/HostButton
 @onready var join_button = $VBoxContainer/JoinButton
 @onready var ip_address = $VBoxContainer/IPAddress
+@onready var port = $VBoxContainer/Port
 @onready var player_name = $VBoxContainer/PlayerName
 @onready var color_picker = $VBoxContainer/ColorPicker
 @onready var error_label = $VBoxContainer/ErrorLabel
@@ -37,7 +38,13 @@ func _on_host_button_pressed():
 		error_label.show()
 		return
 	
-	var error = network_manager.create_server(player_name.text, color_picker.color)
+	if port.text.strip_edges().is_empty():
+		error_label.text = "Please enter a port number"
+		error_label.show()
+		return
+	
+	var port_number = int(port.text.strip_edges())
+	var error = network_manager.create_server(player_name.text, color_picker.color, port_number)
 	
 	if error != OK:
 		error_label.text = "Could not create server"
@@ -60,8 +67,14 @@ func _on_join_button_pressed():
 		error_label.show()
 		return
 	
+	if port.text.strip_edges().is_empty():
+		error_label.text = "Please enter a port number"
+		error_label.show()
+		return
+	
 	var ip = ip_address.text.strip_edges()
-	var error = network_manager.join_server(ip, player_name.text, color_picker.color)
+	var port_number = int(port.text.strip_edges())
+	var error = network_manager.join_server(ip, port_number, player_name.text, color_picker.color)
 	
 	if error != OK:
 		error_label.text = "Could not connect to server"

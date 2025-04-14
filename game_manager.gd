@@ -3,6 +3,7 @@ class_name GameManager
 extends Node
 
 signal race_completed(player, time)
+signal race_started
 
 @export var race_line: RaceLine
 @export var laps_to_win: int = 3
@@ -32,6 +33,8 @@ func start_race():
 	race_in_progress = true
 	race_start_time = Time.get_ticks_msec()
 	print("Race started!")
+	
+	emit_signal("race_started")
 
 func position_players_at_start():
 	if race_line:

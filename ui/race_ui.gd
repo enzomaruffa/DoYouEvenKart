@@ -21,8 +21,9 @@ func _ready():
 	# Update UI elements
 	update_ui()
 	
-	# Connect to race completed signal
+	# Connect to signals
 	game_manager.race_completed.connect(_on_race_completed)
+	game_manager.connect("race_started", _on_race_started)
 
 func _process(_delta):
 	update_ui()
@@ -124,6 +125,9 @@ func update_player_list():
 		player_list.add_child(player_entry)
 
 func _on_race_completed(player, time):
+	# Remove any existing victory label
+	remove_victory_label()
+	
 	# Show a simple victory message
 	var victory_label = Label.new()
 	victory_label.name = "VictoryLabel"
@@ -148,3 +152,12 @@ func _on_race_completed(player, time):
 	victory_label.offset_bottom = 50
 	
 	add_child(victory_label)
+	
+func _on_race_started():
+	# Remove any existing victory label
+	remove_victory_label()
+	
+func remove_victory_label():
+	var existing_label = get_node_or_null("VictoryLabel")
+	if existing_label:
+		existing_label.queue_free()

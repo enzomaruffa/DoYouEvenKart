@@ -28,12 +28,12 @@ func _ready():
 	multiplayer.connection_failed.connect(_on_connection_failed)
 	multiplayer.server_disconnected.connect(_on_server_disconnected)
 
-func create_server(player_name, player_color):
+func create_server(player_name, player_color, custom_port = DEFAULT_PORT):
 	my_info.name = player_name
 	my_info.color = player_color
 	
 	peer = ENetMultiplayerPeer.new()
-	var error = peer.create_server(DEFAULT_PORT, MAX_PLAYERS)
+	var error = peer.create_server(custom_port, MAX_PLAYERS)
 	
 	if error != OK:
 		print("Failed to create server: ", error)
@@ -45,12 +45,12 @@ func create_server(player_name, player_color):
 	add_player(1, my_info)
 	return OK
 
-func join_server(ip, player_name, player_color):
+func join_server(ip, port, player_name, player_color):
 	my_info.name = player_name
 	my_info.color = player_color
 	
 	peer = ENetMultiplayerPeer.new()
-	var error = peer.create_client(ip, DEFAULT_PORT)
+	var error = peer.create_client(ip, port)
 	
 	if error != OK:
 		print("Failed to join server: ", error)
@@ -73,7 +73,7 @@ func _on_player_disconnected(id):
 	emit_signal("lobby_updated")
 
 func _on_connected_to_server():
-	print("Connected to server!")
+	print("Connected to server: " + multiplayer.multiplayer_peer.get_peer_address(1))
 	emit_signal("connection_succeeded")
 
 func _on_connection_failed():

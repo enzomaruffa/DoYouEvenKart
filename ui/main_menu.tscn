@@ -80,6 +80,15 @@ text = "Server IP Address:"
 layout_mode = 2
 placeholder_text = "Enter server IP"
 
+[node name="PortLabel" type="Label" parent="VBoxContainer"]
+layout_mode = 2
+text = "Server Port:"
+
+[node name="Port" type="LineEdit" parent="VBoxContainer"]
+layout_mode = 2
+text = "10567"
+placeholder_text = "Enter server port"
+
 [node name="JoinButton" type="Button" parent="VBoxContainer"]
 layout_mode = 2
 size_flags_vertical = 3
