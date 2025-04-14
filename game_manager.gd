@@ -9,8 +9,6 @@ signal race_completed(player, time)
 @export var restart_delay: float = 1.0
 @export var race_start_delay: float = 2.0
 @export var player_group: String = "players"  # Group name for players
-@export var starting_grid_width: float = 5.0  # Width of zigzag pattern
-@export var grid_spacing: float = 2.0  # Space between cars in grid
 
 var player_laps = {}
 var race_started = false
@@ -36,34 +34,11 @@ func start_race():
 	print("Race started!")
 
 func position_players_at_start():
-	var players = get_tree().get_nodes_in_group(player_group)
-
-	if players.size() == 0:
-		push_error("No players found in group: " + player_group)
-		return
-
-	var start_pos = race_line.global_position
-	var forward_dir = -race_line.get_global_transform().basis.x  # Use -X as forward
-	var right_dir = -race_line.get_global_transform().basis.z    # Use -Z as right
-
-	for i in range(players.size()):
-		var player = players[i]
-
-		var row = i / 2
-		var column = i % 2
-
-		var offset = forward_dir * (row * grid_spacing)
-		offset += right_dir * (column * starting_grid_width - starting_grid_width/2)
-
-		player.global_position = start_pos + offset + Vector3(0, 2, 0)  # Slightly above ground
-
-		player.look_at(start_pos)
-
-		if player is RigidBody3D:
-			player.linear_velocity = Vector3.ZERO
-			player.angular_velocity = Vector3.ZERO
-
-		print("Positioned player " + player.name + " at " + str(player.global_position))
+	if race_line:
+		# Use the race_line's built-in positioning method
+		race_line.position_players_at_start(player_group)
+	else:
+		push_error("No race_line assigned to GameManager")
 
 func _on_lap_completed(player):
 	if not race_in_progress:

@@ -1,0 +1,91 @@
+extends Control
+
+@onready var host_button = $VBoxContainer/HostButton
+@onready var join_button = $VBoxContainer/JoinButton
+@onready var ip_address = $VBoxContainer/IPAddress
+@onready var player_name = $VBoxContainer/PlayerName
+@onready var color_picker = $VBoxContainer/ColorPicker
+@onready var error_label = $VBoxContainer/ErrorLabel
+
+var network_manager = null
+
+func _ready():
+	# Get the singleton instance of NetworkManager
+	network_manager = get_node("/root/NetworkManager")
+	
+	# Connect signals
+	if network_manager:
+		network_manager.connection_succeeded.connect(_on_connection_success)
+		network_manager.connection_failed.connect(_on_connection_failed)
+		network_manager.server_disconnected.connect(_on_server_disconnected)
+	
+	# Set up default values
+	player_name.text = "Player" + str(randi() % 1000)
+	
+	# Randomize color
+	var random_color = Color(randf(), randf(), randf())
+	color_picker.color = random_color
+	
+	# Hide error label by default
+	error_label.hide()
+
+func _on_host_button_pressed():
+	error_label.hide()
+	
+	if player_name.text.strip_edges().is_empty():
+		error_label.text = "Please enter a player name"
+		error_label.show()
+		return
+	
+	var error = network_manager.create_server(player_name.text, color_picker.color)
+	
+	if error != OK:
+		error_label.text = "Could not create server"
+		error_label.show()
+		return
+	
+	# Switch to lobby scene
+	get_tree().change_scene_to_file("res://ui/lobby.tscn")
+
+func _on_join_button_pressed():
+	error_label.hide()
+	
+	if player_name.text.strip_edges().is_empty():
+		error_label.text = "Please enter a player name"
+		error_label.show()
+		return
+	
+	if ip_address.text.strip_edges().is_empty():
+		error_label.text = "Please enter an IP address"
+		error_label.show()
+		return
+	
+	var ip = ip_address.text.strip_edges()
+	var error = network_manager.join_server(ip, player_name.text, color_picker.color)
+	
+	if error != OK:
+		error_label.text = "Could not connect to server"
+		error_label.show()
+		return
+	
+	# Disable buttons while connecting
+	host_button.disabled = true
+	join_button.disabled = true
+	error_label.text = "Connecting..."
+	error_label.show()
+
+func _on_connection_success():
+	# Switch to lobby scene
+	get_tree().change_scene_to_file("res://ui/lobby.tscn")
+
+func _on_connection_failed():
+	host_button.disabled = false
+	join_button.disabled = false
+	error_label.text = "Connection failed!"
+	error_label.show()
+
+func _on_server_disconnected():
+	host_button.disabled = false
+	join_button.disabled = false
+	error_label.text = "Server disconnected!"
+	error_label.show()
