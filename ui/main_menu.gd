@@ -23,6 +23,9 @@ func _ready():
 	var random_color = Color(randf(), randf(), randf())
 	color_picker.color = random_color
 	
+	# Set default IP to localhost
+	ip_address.text = "127.0.0.1"
+	
 	error_label.hide()
 
 func _on_host_button_pressed():

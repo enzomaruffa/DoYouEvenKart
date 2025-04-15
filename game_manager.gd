@@ -4,6 +4,7 @@ extends Node
 
 signal race_completed(player, time)
 signal race_started
+signal race_in_progress_update
 
 @export var race_line: RaceLine
 @export var laps_to_win: int = 3
@@ -25,7 +26,7 @@ func _ready():
 		push_error("No RaceLine assigned to GameManager")
 	
 	player_spawner.all_players_spawned.connect(start_race)
-	print("Waiting for player spawner to finish")
+	print(multiplayer.get_unique_id(), "- Waiting for player spawner to finish")
 
 func start_race():
 	player_laps.clear()
@@ -35,7 +36,7 @@ func start_race():
 	has_race_started = true
 	is_race_in_progress = true
 	race_start_time = Time.get_ticks_msec()
-	print("Race started!")
+	print(multiplayer.get_unique_id(), "- Race started!")
 	
 	emit_signal("race_started")
 
@@ -55,7 +56,30 @@ func _on_lap_completed(player):
 
 	player_laps[player] += 1
 
-	print("Player " + player.name + " completed lap " + str(player_laps[player]))
+	# Get player name if available
+	var player_name = player.name
+	if "player_name" in player:
+		player_name = player.player_name
+		
+	print(multiplayer.get_unique_id(), "- Player " + player_name + " completed lap " + str(player_laps[player]))
+	
+	# Debug info for host to check player_laps dictionary
+	if multiplayer.is_server() or not multiplayer.has_multiplayer_peer():
+		print(multiplayer.get_unique_id(), "- [LAP DEBUG] Lap completed by " + player_name)
+		print(multiplayer.get_unique_id(), "- [LAP DEBUG] player_laps dictionary now contains " + str(player_laps.size()) + " entries:")
+		for p in player_laps.keys():
+			var p_name = "Unknown"
+			if is_instance_valid(p):
+				p_name = p.name
+				if "player_name" in p:
+					p_name = p.player_name
+			else:
+				p_name = "INVALID REFERENCE"
+			print(multiplayer.get_unique_id(), "- [LAP DEBUG] - " + p_name + ": " + str(player_laps[p]) + " laps")
+
+	# In multiplayer, make sure player_laps is synced to all clients
+	if multiplayer.has_multiplayer_peer():
+		rpc("sync_player_laps", player.get_path(), player_laps[player])
 
 	if player_laps[player] >= laps_to_win:
 		_on_race_won(player)
@@ -72,7 +96,7 @@ func _on_race_won(player):
 	else:
 		player_name = player.name
 		
-	print("Player " + player_name + " won the race in " + str(race_time) + " seconds!")
+	print(multiplayer.get_unique_id(), "- Player " + player_name + " won the race in " + str(race_time) + " seconds!")
 
 	emit_signal("race_completed", player, race_time)
 	
@@ -83,7 +107,61 @@ func _on_race_won(player):
 
 func restart_race():
 	get_tree().paused = true
+	
+	# First sync that the race is no longer in progress to all clients
+	if multiplayer.has_multiplayer_peer():
+		rpc("sync_race_state", false)
+	
 	await get_tree().create_timer(restart_delay).timeout
+	
+	# Reset player physics completely before starting new race
+	reset_all_players()
+	
 	start_race()
+	
+	# Sync that the race is in progress
+	if multiplayer.has_multiplayer_peer():
+		rpc("sync_race_state", true)
+	
 	await get_tree().create_timer(race_start_delay).timeout
 	get_tree().paused = false
+	
+func reset_all_players():
+	var players = get_tree().get_nodes_in_group(player_group)
+	for player in players:
+		if player.has_method("reset_physics"):
+			player.reset_physics()
+		
+		# Directly reset physics properties
+		if "velocity" in player:
+			player.velocity = Vector3.ZERO
+		if "speed" in player:
+			player.speed = 0.0
+	
+@rpc("authority", "call_local", "reliable")
+func sync_race_state(in_progress):
+	is_race_in_progress = in_progress
+	
+@rpc("authority", "call_local", "reliable")
+func sync_player_laps(player_path, lap_count):
+	# Get the player node from path
+	var player = get_node_or_null(player_path)
+	if player:
+		# Update lap count in player_laps dictionary
+		player_laps[player] = lap_count
+			
+# Called every frame to ensure leaderboard is always up-to-date
+func _process(_delta):
+	if multiplayer.has_multiplayer_peer() and multiplayer.is_server() and is_race_in_progress:
+		if Engine.get_frames_drawn() % 30 == 0:  # Twice per second
+			sync_all_player_laps()
+			
+func sync_all_player_laps():
+	if not multiplayer.is_server():
+		return
+		
+	for player in player_laps.keys():
+		if is_instance_valid(player) and player.has_method("get_path"):
+			rpc("sync_player_laps", player.get_path(), player_laps[player])
+	
+	emit_signal("race_in_progress_update")

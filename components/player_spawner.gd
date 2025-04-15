@@ -44,7 +44,7 @@ func delayed_spawn():
 		await get_tree().create_timer(0.2).timeout
 		rpc("emit_all_players_spawned")
 		
-@rpc("authority", "reliable")
+@rpc("authority", "call_local", "reliable")
 func emit_all_players_spawned():
 	emit_signal("all_players_spawned")
 
@@ -61,7 +61,7 @@ func _on_player_connected(id):
 			# Use RPC to ensure all clients receive this signal
 			rpc("emit_late_player_spawned", id)
 
-@rpc("authority", "reliable")
+@rpc("authority", "call_local", "reliable")
 func emit_late_player_spawned(player_id):
 	if spawned_players.has(player_id):
 		emit_signal("late_player_spawned", player_id, spawned_players[player_id])

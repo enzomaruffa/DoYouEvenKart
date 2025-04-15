@@ -10,6 +10,15 @@ var race_positions = []
 @onready var lap_label = $VBoxContainer/LapLabel
 @onready var player_list = $VBoxContainer/PlayerList
 
+# Add these signals to match with PlayerSpawner
+func _on_player_spawned(_id, _player, _position_index):
+	# Update UI whenever a new player is spawned
+	update_ui()
+
+func _on_all_players_spawned():
+	# Update UI once all players are spawned
+	update_ui()
+
 func _ready():
 	if not game_manager:
 		push_error("No GameManager assigned to RaceUI")
@@ -18,15 +27,22 @@ func _ready():
 	# Get network manager
 	network_manager = get_node_or_null("/root/NetworkManager")
 	
-	# Update UI elements
-	update_ui()
-	
-	# Connect to signals
+	# Connect to all relevant signals
 	game_manager.race_completed.connect(_on_race_completed)
-	game_manager.connect("race_started", _on_race_started)
+	game_manager.race_started.connect(_on_race_started)
+	game_manager.race_in_progress_update.connect(_on_race_update)
+
+	# Connect to player spawn signals if available
+	if game_manager.player_spawner:
+		game_manager.player_spawner.player_spawned.connect(_on_player_spawned)
+		game_manager.player_spawner.all_players_spawned.connect(_on_all_players_spawned)
+
+	# Initial UI update
+	update_ui()
 
 func _process(_delta):
-	update_ui()
+	if game_manager and game_manager.is_race_in_progress:
+		update_ui()
 
 func update_ui():
 	# Update player position list
@@ -55,22 +71,37 @@ func update_race_positions():
 	# Get all players
 	var players = get_tree().get_nodes_in_group(game_manager.player_group)
 	
-	# Sort players by lap count (descending)
-	players.sort_custom(func(a, b):
-		var a_laps = 0
-		var b_laps = 0
-		
-		if game_manager.player_laps.has(a):
-			a_laps = game_manager.player_laps[a]
+	# Check for empty player list
+	if players.size() == 0:
+		return
+	
+	# Create a temporary array with player data for easier sorting
+	var player_data = []
+	for player in players:
+		var lap_count = 0
+		if game_manager.player_laps.has(player):
+			lap_count = game_manager.player_laps[player]
 			
-		if game_manager.player_laps.has(b):
-			b_laps = game_manager.player_laps[b]
+		var player_name = player.name
+		if "player_name" in player:
+			player_name = player.player_name
 			
-		return a_laps > b_laps
+		player_data.append({
+			"player": player,
+			"laps": lap_count,
+			"name": player_name
+		})
+	
+	# Sort the player data by lap count (descending)
+	player_data.sort_custom(func(a, b):
+		if a.laps == b.laps:
+			return a.name < b.name  # Alphabetical as tiebreaker
+		return a.laps > b.laps
 	)
 	
-	# Store player positions
-	race_positions = players
+	# Extract just the player objects in the correct order
+	for data in player_data:
+		race_positions.append(data.player)
 
 func get_player_position(player_id):
 	for i in range(race_positions.size()):
@@ -157,7 +188,14 @@ func _on_race_started():
 	# Remove any existing victory label
 	remove_victory_label()
 	
+	# Force update of the leaderboard
+	update_ui()
+
 func remove_victory_label():
 	var existing_label = get_node_or_null("VictoryLabel")
 	if existing_label:
 		existing_label.queue_free()
+
+func _on_race_update():
+	# Called when the game_manager emits race_in_progress_update
+	update_ui()

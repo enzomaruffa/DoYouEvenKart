@@ -47,5 +47,4 @@ mesh = SubResource("BoxMesh_s04ed")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.08165e-12, 2, 5)
 
 [node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
-root_path = NodePath("..")
 replication_config = SubResource("SceneReplicationConfig_b7lco")
