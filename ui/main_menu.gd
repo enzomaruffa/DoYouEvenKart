@@ -11,23 +11,18 @@ extends Control
 var network_manager = null
 
 func _ready():
-	# Get the singleton instance of NetworkManager
 	network_manager = get_node("/root/NetworkManager")
 	
-	# Connect signals
 	if network_manager:
 		network_manager.connection_succeeded.connect(_on_connection_success)
 		network_manager.connection_failed.connect(_on_connection_failed)
 		network_manager.server_disconnected.connect(_on_server_disconnected)
 	
-	# Set up default values
 	player_name.text = "Player" + str(randi() % 1000)
 	
-	# Randomize color
 	var random_color = Color(randf(), randf(), randf())
 	color_picker.color = random_color
 	
-	# Hide error label by default
 	error_label.hide()
 
 func _on_host_button_pressed():

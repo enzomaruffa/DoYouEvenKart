@@ -29,7 +29,6 @@ var respawn_timer = 0.0
 var player_name = "Player"
 var player_color = Color.BLUE
 var player_id = 0
-var is_local_player = false
 
 # Multiplayer synchronization
 var sync_pos = Vector3()
@@ -61,14 +60,15 @@ func _ready():
 	label_3d.font_size = 24
 	add_child(label_3d)
 	
-	# Only enable camera for local player
+	# Only enable camera for local player (player we have authority over)
 	$Camera3D.current = is_multiplayer_authority()
 	
-	# Hide other players' cameras
-	if not is_multiplayer_authority():
-		$Camera3D.clear_current()
-		
-	print("Player ready: ", player_name, " (ID: ", str(player_id), ") Authority: ", is_multiplayer_authority())
+	# Debug authority information
+	print(multiplayer.get_unique_id(), ": Player ready: ", player_name, " (ID: ", str(player_id), ") Authority: ", is_multiplayer_authority(), " Local ID: ", multiplayer.get_unique_id())
+	if is_multiplayer_authority():
+		print(multiplayer.get_unique_id(), ": ✓ Camera active for player: ", player_name)
+	else:
+		print(multiplayer.get_unique_id(), ": ✗ Camera inactive for player: ", player_name)
 
 func apply_ground_alignment(delta):
 	var target_up = get_floor_normal()
@@ -94,8 +94,8 @@ func apply_ground_alignment(delta):
 				global_transform.basis = Basis(correction_rotation) * global_transform.basis
 
 func _physics_process(delta):
+	# For non-local players, we just interpolate their positions
 	if not is_multiplayer_authority():
-		# Interpolate position for non-local players
 		global_position = global_position.lerp(sync_pos, 0.5)
 		global_transform.basis = Basis(global_transform.basis.get_rotation_quaternion().slerp(sync_rot, 0.5))
 		return
@@ -234,8 +234,10 @@ func set_player_info(id, info):
 	player_name = info.name
 	player_color = info.color
 	
-	# Set authority based on the ID
-	set_multiplayer_authority(id)
+	# Always set the authority - the spawner will override this with the correct authority
+	var peer_id = multiplayer.get_unique_id()
+	# Log info about the player authority setup
+	print(peer_id, ": Processing player_info for player: ", player_name, " (ID: ", id, ") Local ID: ", peer_id)
 	
 	# Update visuals if the node is already ready
 	if is_inside_tree():
@@ -249,8 +251,14 @@ func set_player_info(id, info):
 		var label = get_node_or_null("Label3D")
 		if label:
 			label.text = player_name
-			
-		# Update camera (only for local player)
+		
+		# Update camera (only for the player that matches this client's ID)
 		$Camera3D.current = is_multiplayer_authority()
 		
-	print("Set player info: ", player_name, " (ID: ", str(player_id), ")")
+		# Extra debug for camera assignment
+		if is_multiplayer_authority():
+			print(multiplayer.get_unique_id(), ": ✓ Camera set active for player: ", player_name, " (ID: ", player_id, ")")
+		else:
+			print(multiplayer.get_unique_id(), ": ✗ Camera set inactive for player: ", player_name, " (ID: ", player_id, ")")
+	
+	print(multiplayer.get_unique_id(), ": Set player info: ", player_name, " (ID: ", str(player_id), ")")

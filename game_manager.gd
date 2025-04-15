@@ -11,6 +11,8 @@ signal race_started
 @export var race_start_delay: float = 2.0
 @export var player_group: String = "players"  # Group name for players
 
+@onready var player_spawner = $"PlayerSpawner"
+
 var player_laps = {}
 var has_race_started = false
 var race_start_time = 0
@@ -21,8 +23,9 @@ func _ready():
 		race_line.pass_completed.connect(_on_lap_completed)
 	else:
 		push_error("No RaceLine assigned to GameManager")
-
-	start_race()
+	
+	player_spawner.all_players_spawned.connect(start_race)
+	print("Waiting for player spawner to finish")
 
 func start_race():
 	player_laps.clear()

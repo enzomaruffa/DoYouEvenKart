@@ -1,15 +1,15 @@
 [gd_scene load_steps=23 format=3 uid="uid://dtbgrhcnolptu"]
 
-[ext_resource type="Script" path="res://game_manager.gd" id="1_8mnyq"]
-[ext_resource type="Script" path="res://components/track_segment/track_segment.gd" id="1_xklif"]
-[ext_resource type="Script" path="res://components/track_segment/track_material.gd" id="2_cu67c"]
-[ext_resource type="PackedScene" uid="uid://cd2gp6us0p7dn" path="res://components/race_line/race_line.tscn" id="4_ovff1"]
-[ext_resource type="Script" path="res://components/player_spawner.gd" id="5_cbm2h"]
-[ext_resource type="PackedScene" uid="uid://c0qrxi3thhd40" path="res://components/car/multiplayer_player.tscn" id="6_lsn8s"]
-[ext_resource type="PackedScene" uid="uid://cw5o0cntlmhhv" path="res://ui/race_ui.tscn" id="7_ubw3s"]
+[ext_resource type="Script" path="res://game_manager.gd" id="1_ckl3f"]
+[ext_resource type="PackedScene" uid="uid://cw5o0cntlmhhv" path="res://ui/race_ui.tscn" id="2_pgq8g"]
+[ext_resource type="Script" path="res://components/player_spawner.gd" id="3_xnae6"]
+[ext_resource type="PackedScene" uid="uid://c0qrxi3thhd40" path="res://components/car/multiplayer_player.tscn" id="4_e3dfl"]
+[ext_resource type="PackedScene" uid="uid://cd2gp6us0p7dn" path="res://components/race_line/race_line.tscn" id="5_4s16s"]
+[ext_resource type="Script" path="res://components/track_segment/track_segment.gd" id="6_pwsbi"]
+[ext_resource type="Script" path="res://components/track_segment/track_material.gd" id="7_x166f"]
 
 [sub_resource type="Resource" id="Resource_tnwfo"]
-script = ExtResource("2_cu67c")
+script = ExtResource("7_x166f")
 friction = 1.0
 drag = 0.0
 grip_factor = 1.0
@@ -17,10 +17,10 @@ grip_factor = 1.0
 [sub_resource type="BoxMesh" id="BoxMesh_g05po"]
 size = Vector3(50, 2, 6)
 
-[sub_resource type="ConcavePolygonShape3D" id="ConcavePolygonShape3D_mlhgr"]
+[sub_resource type="ConcavePolygonShape3D" id="ConcavePolygonShape3D_7bcwb"]
 data = PackedVector3Array(-25, 1, 3, 25, 1, 3, -25, -1, 3, 25, 1, 3, 25, -1, 3, -25, -1, 3, 25, 1, -3, -25, 1, -3, 25, -1, -3, -25, 1, -3, -25, -1, -3, 25, -1, -3, 25, 1, 3, 25, 1, -3, 25, -1, 3, 25, 1, -3, 25, -1, -3, 25, -1, 3, -25, 1, -3, -25, 1, 3, -25, -1, -3, -25, 1, 3, -25, -1, 3, -25, -1, -3, 25, 1, 3, -25, 1, 3, 25, 1, -3, -25, 1, 3, -25, 1, -3, 25, 1, -3, -25, -1, 3, 25, -1, 3, -25, -1, -3, 25, -1, 3, 25, -1, -3, -25, -1, -3)
 
-[sub_resource type="Image" id="Image_w2uaf"]
+[sub_resource type="Image" id="Image_lgtsj"]
 data = {
 "data": PackedByteArray(25, 25, 25, 255, 229, 229, 229, 255, 229, 229, 229, 255, 25, 25, 25, 255),
 "format": "RGBA8",
@@ -29,21 +29,21 @@ data = {
 "width": 2
 }
 
-[sub_resource type="ImageTexture" id="ImageTexture_e4k87"]
-image = SubResource("Image_w2uaf")
+[sub_resource type="ImageTexture" id="ImageTexture_8sejt"]
+image = SubResource("Image_lgtsj")
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_nfr2d"]
-albedo_texture = SubResource("ImageTexture_e4k87")
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_2m3t8"]
+albedo_texture = SubResource("ImageTexture_8sejt")
 uv1_scale = Vector3(25, 3, 1)
 texture_filter = 0
 
 [sub_resource type="ConcavePolygonShape3D" id="ConcavePolygonShape3D_txn0a"]
 data = PackedVector3Array(-0.5, 0.5, 0.5, 0.5, 0.5, 0.5, -0.5, -0.5, 0.5, 0.5, 0.5, 0.5, 0.5, -0.5, 0.5, -0.5, -0.5, 0.5, 0.5, 0.5, -0.5, -0.5, 0.5, -0.5, 0.5, -0.5, -0.5, -0.5, 0.5, -0.5, -0.5, -0.5, -0.5, 0.5, -0.5, -0.5, 0.5, 0.5, 0.5, 0.5, 0.5, -0.5, 0.5, -0.5, 0.5, 0.5, 0.5, -0.5, 0.5, -0.5, -0.5, 0.5, -0.5, 0.5, -0.5, 0.5, -0.5, -0.5, 0.5, 0.5, -0.5, -0.5, -0.5, -0.5, 0.5, 0.5, -0.5, -0.5, 0.5, -0.5, -0.5, -0.5, 0.5, 0.5, 0.5, -0.5, 0.5, 0.5, 0.5, 0.5, -0.5, -0.5, 0.5, 0.5, -0.5, 0.5, -0.5, 0.5, 0.5, -0.5, -0.5, -0.5, 0.5, 0.5, -0.5, 0.5, -0.5, -0.5, -0.5, 0.5, -0.5, 0.5, 0.5, -0.5, -0.5, -0.5, -0.5, -0.5)
 
-[sub_resource type="ConcavePolygonShape3D" id="ConcavePolygonShape3D_yi812"]
+[sub_resource type="ConcavePolygonShape3D" id="ConcavePolygonShape3D_hg4r5"]
 data = PackedVector3Array(-25, 1, 3, 25, 1, 3, -25, -1, 3, 25, 1, 3, 25, -1, 3, -25, -1, 3, 25, 1, -3, -25, 1, -3, 25, -1, -3, -25, 1, -3, -25, -1, -3, 25, -1, -3, 25, 1, 3, 25, 1, -3, 25, -1, 3, 25, 1, -3, 25, -1, -3, 25, -1, 3, -25, 1, -3, -25, 1, 3, -25, -1, -3, -25, 1, 3, -25, -1, 3, -25, -1, -3, 25, 1, 3, -25, 1, 3, 25, 1, -3, -25, 1, 3, -25, 1, -3, 25, 1, -3, -25, -1, 3, 25, -1, 3, -25, -1, -3, 25, -1, 3, 25, -1, -3, -25, -1, -3)
 
-[sub_resource type="Image" id="Image_ja43q"]
+[sub_resource type="Image" id="Image_1akvg"]
 data = {
 "data": PackedByteArray(25, 25, 25, 255, 229, 229, 229, 255, 229, 229, 229, 255, 25, 25, 25, 255),
 "format": "RGBA8",
@@ -52,18 +52,18 @@ data = {
 "width": 2
 }
 
-[sub_resource type="ImageTexture" id="ImageTexture_tneom"]
-image = SubResource("Image_ja43q")
+[sub_resource type="ImageTexture" id="ImageTexture_evho0"]
+image = SubResource("Image_1akvg")
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_d2n3l"]
-albedo_texture = SubResource("ImageTexture_tneom")
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_k8458"]
+albedo_texture = SubResource("ImageTexture_evho0")
 uv1_scale = Vector3(25, 3, 1)
 texture_filter = 0
 
-[sub_resource type="ConcavePolygonShape3D" id="ConcavePolygonShape3D_amcfx"]
+[sub_resource type="ConcavePolygonShape3D" id="ConcavePolygonShape3D_4bnsg"]
 data = PackedVector3Array(-25, 1, 3, 25, 1, 3, -25, -1, 3, 25, 1, 3, 25, -1, 3, -25, -1, 3, 25, 1, -3, -25, 1, -3, 25, -1, -3, -25, 1, -3, -25, -1, -3, 25, -1, -3, 25, 1, 3, 25, 1, -3, 25, -1, 3, 25, 1, -3, 25, -1, -3, 25, -1, 3, -25, 1, -3, -25, 1, 3, -25, -1, -3, -25, 1, 3, -25, -1, 3, -25, -1, -3, 25, 1, 3, -25, 1, 3, 25, 1, -3, -25, 1, 3, -25, 1, -3, 25, 1, -3, -25, -1, 3, 25, -1, 3, -25, -1, -3, 25, -1, 3, 25, -1, -3, -25, -1, -3)
 
-[sub_resource type="Image" id="Image_wvo31"]
+[sub_resource type="Image" id="Image_mk57l"]
 data = {
 "data": PackedByteArray(25, 25, 25, 255, 229, 229, 229, 255, 229, 229, 229, 255, 25, 25, 25, 255),
 "format": "RGBA8",
@@ -72,48 +72,48 @@ data = {
 "width": 2
 }
 
-[sub_resource type="ImageTexture" id="ImageTexture_wv1fk"]
-image = SubResource("Image_wvo31")
+[sub_resource type="ImageTexture" id="ImageTexture_yfrj0"]
+image = SubResource("Image_mk57l")
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_40c30"]
-albedo_texture = SubResource("ImageTexture_wv1fk")
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_g6y0j"]
+albedo_texture = SubResource("ImageTexture_yfrj0")
 uv1_scale = Vector3(25, 3, 1)
 texture_filter = 0
 
 [node name="MultiplayerTrack" type="Node3D" node_paths=PackedStringArray("race_line")]
-script = ExtResource("1_8mnyq")
+script = ExtResource("1_ckl3f")
 race_line = NodePath("RaceLine")
 
-[node name="RaceUI" parent="." node_paths=PackedStringArray("game_manager") instance=ExtResource("7_ubw3s")]
+[node name="RaceUI" parent="." node_paths=PackedStringArray("game_manager") instance=ExtResource("2_pgq8g")]
 game_manager = NodePath("..")
 
-[node name="PlayerSpawner" type="Node" parent="." node_paths=PackedStringArray("race_line")]
-script = ExtResource("5_cbm2h")
-multiplayer_player_scene = ExtResource("6_lsn8s")
-race_line = NodePath("../RaceLine")
+[node name="PlayerSpawner" type="Node" parent="."]
+script = ExtResource("3_xnae6")
+multiplayer_player_scene = ExtResource("4_e3dfl")
 
-[node name="RaceLine" parent="." instance=ExtResource("4_ovff1")]
+[node name="RaceLine" parent="." node_paths=PackedStringArray("player_spawner") instance=ExtResource("5_4s16s")]
 transform = Transform3D(-4.37114e-08, 3.48787e-16, 1, 3.48787e-16, 1, -3.48787e-16, -1, 3.48787e-16, -4.37114e-08, -9, 2.08165e-12, 2.08165e-12)
+player_spawner = NodePath("../PlayerSpawner")
 
 [node name="TrackSegments" type="Node3D" parent="."]
 
 [node name="StaticBody3D" type="StaticBody3D" parent="TrackSegments"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.08165e-12, 2.08165e-12, 2.08165e-12)
-script = ExtResource("1_xklif")
+script = ExtResource("6_pwsbi")
 track_material = SubResource("Resource_tnwfo")
 custom_mesh = SubResource("BoxMesh_g05po")
 use_checkered_pattern = true
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="TrackSegments/StaticBody3D"]
-shape = SubResource("ConcavePolygonShape3D_mlhgr")
+shape = SubResource("ConcavePolygonShape3D_7bcwb")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="TrackSegments/StaticBody3D"]
-material_override = SubResource("StandardMaterial3D_nfr2d")
+material_override = SubResource("StandardMaterial3D_2m3t8")
 mesh = SubResource("BoxMesh_g05po")
 
 [node name="StaticBody3D2" type="StaticBody3D" parent="TrackSegments"]
 transform = Transform3D(-0.625855, 0, -0.779939, 0, 1, 0, 0.779939, 0, -0.625855, 10.886, 2.08165e-12, 18.1954)
-script = ExtResource("1_xklif")
+script = ExtResource("6_pwsbi")
 track_material = SubResource("Resource_tnwfo")
 custom_mesh = SubResource("BoxMesh_g05po")
 use_checkered_pattern = true
@@ -125,15 +125,15 @@ shape = SubResource("ConcavePolygonShape3D_txn0a")
 mesh = SubResource("BoxMesh_g05po")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="TrackSegments/StaticBody3D2"]
-shape = SubResource("ConcavePolygonShape3D_yi812")
+shape = SubResource("ConcavePolygonShape3D_hg4r5")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="TrackSegments/StaticBody3D2"]
-material_override = SubResource("StandardMaterial3D_d2n3l")
+material_override = SubResource("StandardMaterial3D_k8458")
 mesh = SubResource("BoxMesh_g05po")
 
 [node name="StaticBody3D3" type="StaticBody3D" parent="TrackSegments"]
 transform = Transform3D(-0.569595, 0, 0.821925, 0, 1, 0, -0.821925, 0, -0.569595, -15.01, 2.08165e-12, 16.778)
-script = ExtResource("1_xklif")
+script = ExtResource("6_pwsbi")
 track_material = SubResource("Resource_tnwfo")
 custom_mesh = SubResource("BoxMesh_g05po")
 use_checkered_pattern = true
@@ -145,8 +145,8 @@ shape = SubResource("ConcavePolygonShape3D_txn0a")
 mesh = SubResource("BoxMesh_g05po")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="TrackSegments/StaticBody3D3"]
-shape = SubResource("ConcavePolygonShape3D_amcfx")
+shape = SubResource("ConcavePolygonShape3D_4bnsg")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="TrackSegments/StaticBody3D3"]
-material_override = SubResource("StandardMaterial3D_40c30")
+material_override = SubResource("StandardMaterial3D_g6y0j")
 mesh = SubResource("BoxMesh_g05po")
