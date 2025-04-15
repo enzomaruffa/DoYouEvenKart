@@ -48,6 +48,7 @@ func update_lobby_display():
 		child.queue_free()
 	
 	# Add all players to the list
+	print(multiplayer.get_unique_id(), ": Updating lobby display with players: ", network_manager.players)
 	for id in network_manager.players:
 		var player_info = network_manager.players[id]
 		var player_entry = HBoxContainer.new()

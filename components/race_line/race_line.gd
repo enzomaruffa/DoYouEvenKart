@@ -3,7 +3,7 @@ extends Node3D
 
 signal pass_completed(player)
 
-@export var starting_grid_width: float = 5.0  # Width of zigzag pattern
+@export var starting_grid_width: float = 4.0  # Width of zigzag pattern
 @export var grid_spacing: float = 2.0  # Space between cars in grid
 
 @onready var entry_area = $Entry
@@ -34,13 +34,13 @@ func _ready():
 # Returns a starting position for a player based on their position index
 func get_start_position(position_index):
 	var start_pos = global_position
-	var forward_dir = -get_global_transform().basis.x  # Use -X as forward
-	var right_dir = -get_global_transform().basis.z    # Use -Z as right
+	var forward_dir = get_global_transform().basis.z
+	var right_dir = -get_global_transform().basis.x
 
 	var row = position_index / 2
 	var column = position_index % 2
 
-	var offset = forward_dir * (row * grid_spacing)
+	var offset = forward_dir * (row * grid_spacing + 5.0)
 	offset += right_dir * (column * starting_grid_width - starting_grid_width/2)
 
 	# Slightly above ground to prevent physics issues
@@ -49,11 +49,7 @@ func get_start_position(position_index):
 	# Return a Transform3D with position and rotation facing start line
 	var transform = Transform3D()
 	transform.origin = position
-	
-	# Calculate rotation to face the start line
-	var basis = Basis()
-	basis = basis.looking_at(start_pos - position)
-	transform.basis = basis
+	transform.basis = Basis.looking_at(-forward_dir, Vector3.UP)
 	
 	return transform
 

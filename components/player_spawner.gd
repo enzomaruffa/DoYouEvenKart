@@ -81,4 +81,4 @@ func spawn_player(id, player_info, position_index):
 	add_child(player_instance, true)
 	spawned_players[id] = player_instance
 	
-	print("Spawned player: ", player_info.name, " with ID: ", id)
+	print("Spawned player: ", player_info.name, " with ID: ", id, " at position: ", transform.origin)

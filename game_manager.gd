@@ -12,9 +12,9 @@ signal race_started
 @export var player_group: String = "players"  # Group name for players
 
 var player_laps = {}
-var race_started = false
+var has_race_started = false
 var race_start_time = 0
-var race_in_progress = false
+var is_race_in_progress = false
 
 func _ready():
 	if race_line:
@@ -29,8 +29,8 @@ func start_race():
 
 	position_players_at_start()
 
-	race_started = true
-	race_in_progress = true
+	has_race_started = true
+	is_race_in_progress = true
 	race_start_time = Time.get_ticks_msec()
 	print("Race started!")
 	
@@ -44,7 +44,7 @@ func position_players_at_start():
 		push_error("No race_line assigned to GameManager")
 
 func _on_lap_completed(player):
-	if not race_in_progress:
+	if not is_race_in_progress:
 		return
 
 	if not player_laps.has(player):
@@ -58,7 +58,7 @@ func _on_lap_completed(player):
 		_on_race_won(player)
 
 func _on_race_won(player):
-	race_in_progress = false
+	is_race_in_progress = false
 
 	var race_time = (Time.get_ticks_msec() - race_start_time) / 1000.0
 	var player_name = "Unknown"

@@ -18,7 +18,8 @@ var players_ready = {}
 var my_info = {
 	"name": "",
 	"color": Color.BLUE,
-	"ready": false
+	"ready": false,
+	"id": -1,
 }
 
 func _ready():
@@ -31,18 +32,19 @@ func _ready():
 func create_server(player_name, player_color, custom_port = DEFAULT_PORT):
 	my_info.name = player_name
 	my_info.color = player_color
+	my_info.id = multiplayer.get_unique_id()
 	
 	peer = ENetMultiplayerPeer.new()
 	var error = peer.create_server(custom_port, MAX_PLAYERS)
 	
 	if error != OK:
-		print("Failed to create server: ", error)
+		print(multiplayer.get_unique_id(), ": Failed to create server: ", error)
 		return error
 		
 	multiplayer.multiplayer_peer = peer
 	
 	# Add our own player to the list
-	add_player(1, my_info)
+	rpc("register_player", my_info)
 	return OK
 
 func join_server(ip, port, player_name, player_color):
@@ -53,19 +55,20 @@ func join_server(ip, port, player_name, player_color):
 	var error = peer.create_client(ip, port)
 	
 	if error != OK:
-		print("Failed to join server: ", error)
+		print(multiplayer.get_unique_id(), ": Failed to join server: ", error)
 		return error
 		
 	multiplayer.multiplayer_peer = peer
+	my_info.id = multiplayer.get_unique_id()
 	return OK
 
 func _on_player_connected(id):
-	print("Player connected: ", id)
+	print(multiplayer.get_unique_id(), ": Player connected: ", id)
 	# Request player info from the new client
 	rpc_id(id, "register_player", my_info)
 
 func _on_player_disconnected(id):
-	print("Player disconnected: ", id)
+	print(multiplayer.get_unique_id(), ": Player disconnected: ", id)
 	if players.has(id):
 		players.erase(id)
 		
@@ -73,16 +76,15 @@ func _on_player_disconnected(id):
 	emit_signal("lobby_updated")
 
 func _on_connected_to_server():
-	print("Connected to server: " + multiplayer.multiplayer_peer.get_peer_address(1))
 	emit_signal("connection_succeeded")
 
 func _on_connection_failed():
-	print("Connection failed!")
+	print(multiplayer.get_unique_id(), ": Connection failed!")
 	multiplayer.multiplayer_peer = null
 	emit_signal("connection_failed")
 
 func _on_server_disconnected():
-	print("Server disconnected!")
+	print(multiplayer.get_unique_id(), ": Server disconnected!")
 	multiplayer.multiplayer_peer = null
 	players.clear()
 	emit_signal("server_disconnected")
@@ -90,23 +92,26 @@ func _on_server_disconnected():
 @rpc("any_peer", "call_local", "reliable")
 func register_player(info):
 	var sender_id = multiplayer.get_remote_sender_id()
+
+	print(multiplayer.get_unique_id(), ": Registering player: ", info)
 	
 	# Store player info
-	add_player(sender_id, info)
+	add_player(info)
 	
 	# If we're the host, sync all existing players to the new player
 	if multiplayer.is_server():
 		for id in players:
-			rpc_id(sender_id, "register_player", players[id])
+			if id == multiplayer.get_unique_id():
+				continue # Don't send our own info to ourselves
+			rpc_id(id, "register_player", players[id])
 
-func add_player(id, info):
-	players[id] = info
-	emit_signal("player_connected", id, info)
+func add_player(info):
+	players[info.id] = info
+	emit_signal("player_connected", info.id, info)
 	emit_signal("lobby_updated")
 
 @rpc("any_peer", "call_local", "reliable")
 func set_player_ready(is_ready):
-	print("set_player_ready: ", is_ready)
 	var sender_id = multiplayer.get_remote_sender_id()
 	
 	if sender_id == 0: # This is us
