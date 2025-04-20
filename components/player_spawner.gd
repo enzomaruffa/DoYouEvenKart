@@ -2,7 +2,6 @@ extends Node
 
 @export var multiplayer_player_scene: PackedScene
 @export var player_group: String = "players"
-# RaceLine reference no longer needed - now RaceLine references PlayerSpawner instead
 
 signal player_spawned(id, player_instance, position_index)
 signal all_players_spawned
@@ -12,6 +11,10 @@ var network_manager = null
 var spawned_players = {}
 
 @onready var spawner = MultiplayerSpawner.new()
+
+# Helper function for standardized authority checks (Option A implementation)
+func is_server() -> bool:
+	return network_manager != null && network_manager.is_server()
 
 func _ready():
 	spawner.name = "MultiplayerSpawner"
@@ -31,7 +34,7 @@ func _ready():
 	call_deferred("delayed_spawn")
 
 func delayed_spawn():
-	if multiplayer.is_server():
+	if is_server():
 		var player_ids = network_manager.players.keys()
 		player_ids.sort()
 
@@ -49,7 +52,7 @@ func emit_all_players_spawned():
 	emit_signal("all_players_spawned")
 
 func _on_player_connected(id):
-	if multiplayer.is_server() and not spawned_players.has(id):
+	if is_server() and not spawned_players.has(id):
 		var player_info = network_manager.players[id]
 		var position_index = spawned_players.size()
 		try_spawn_player(id, player_info, position_index)
@@ -70,7 +73,7 @@ func try_spawn_player(id, player_info, position_index):
 	if spawned_players.has(id):
 		return
 	
-	if multiplayer.is_server():
+	if is_server():
 		var player_scene_path = multiplayer_player_scene.resource_path
 		var spawn_info = {
 			"name": str(id),
@@ -102,7 +105,7 @@ func spawn_player(scene_path, spawn_info):
 		print(multiplayer.get_unique_id(), ": Force claiming authority over player ID: ", spawn_info.player_id)
 		
 		player_instance.set_player_info(spawn_info.player_id, {
-			"name": spawn_info.player_name, 
+			"name": spawn_info.player_name,
 			"color": spawn_info.player_color
 		})
 		
@@ -114,6 +117,6 @@ func spawn_player(scene_path, spawn_info):
 		# Signal position index for RaceLine to use
 		emit_signal("player_spawned", spawn_info.player_id, player_instance, spawn_info.position_index)
 		
-		print(multiplayer.get_unique_id(), ": Spawned player: ", spawn_info.player_name, 
-			" with ID: ", spawn_info.player_id, 
+		print(multiplayer.get_unique_id(), ": Spawned player: ", spawn_info.player_name,
+			" with ID: ", spawn_info.player_id,
 			" Authority: ", player_instance.is_multiplayer_authority())

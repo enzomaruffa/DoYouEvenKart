@@ -10,9 +10,11 @@ signal race_in_progress_update
 @export var laps_to_win: int = 3
 @export var restart_delay: float = 1.0
 @export var race_start_delay: float = 2.0
-@export var player_group: String = "players"  # Group name for players
+@export var player_group: String = "players" # Group name for players
 
 @onready var player_spawner = $"PlayerSpawner"
+@onready var network_manager = get_node_or_null("/root/NetworkManager")
+@onready var multiplayer_synchronizer = $MultiplayerSynchronizer
 
 var player_laps = {}
 var has_race_started = false
@@ -27,6 +29,17 @@ func _ready():
 	
 	player_spawner.all_players_spawned.connect(start_race)
 	print(multiplayer.get_unique_id(), "- Waiting for player spawner to finish")
+	
+	# Set up MultiplayerSynchronizer for player_laps (Enhancement from Option A)
+	if !multiplayer_synchronizer:
+		multiplayer_synchronizer = MultiplayerSynchronizer.new()
+		multiplayer_synchronizer.name = "MultiplayerSynchronizer"
+		add_child(multiplayer_synchronizer)
+	
+	# Set up synchronizer for race state
+	var sync_config = SceneReplicationConfig.new()
+	sync_config.add_property("is_race_in_progress")
+	multiplayer_synchronizer.replication_config = sync_config
 
 func start_race():
 	player_laps.clear()
@@ -64,7 +77,7 @@ func _on_lap_completed(player):
 	print(multiplayer.get_unique_id(), "- Player " + player_name + " completed lap " + str(player_laps[player]))
 	
 	# Debug info for host to check player_laps dictionary
-	if multiplayer.is_server() or not multiplayer.has_multiplayer_peer():
+	if network_manager and network_manager.is_server():
 		print(multiplayer.get_unique_id(), "- [LAP DEBUG] Lap completed by " + player_name)
 		print(multiplayer.get_unique_id(), "- [LAP DEBUG] player_laps dictionary now contains " + str(player_laps.size()) + " entries:")
 		for p in player_laps.keys():
@@ -101,16 +114,12 @@ func _on_race_won(player):
 	emit_signal("race_completed", player, race_time)
 	
 	# Only the server should restart the race in multiplayer
-	if not multiplayer.has_multiplayer_peer() or multiplayer.is_server():
+	if network_manager and network_manager.is_server():
 		restart_race()
 
 
 func restart_race():
 	get_tree().paused = true
-	
-	# First sync that the race is no longer in progress to all clients
-	if multiplayer.has_multiplayer_peer():
-		rpc("sync_race_state", false)
 	
 	await get_tree().create_timer(restart_delay).timeout
 	
@@ -118,10 +127,6 @@ func restart_race():
 	reset_all_players()
 	
 	start_race()
-	
-	# Sync that the race is in progress
-	if multiplayer.has_multiplayer_peer():
-		rpc("sync_race_state", true)
 	
 	await get_tree().create_timer(race_start_delay).timeout
 	get_tree().paused = false
@@ -139,10 +144,6 @@ func reset_all_players():
 			player.speed = 0.0
 	
 @rpc("authority", "call_local", "reliable")
-func sync_race_state(in_progress):
-	is_race_in_progress = in_progress
-	
-@rpc("authority", "call_local", "reliable")
 func sync_player_laps(player_path, lap_count):
 	# Get the player node from path
 	var player = get_node_or_null(player_path)
@@ -152,12 +153,12 @@ func sync_player_laps(player_path, lap_count):
 			
 # Called every frame to ensure leaderboard is always up-to-date
 func _process(_delta):
-	if multiplayer.has_multiplayer_peer() and multiplayer.is_server() and is_race_in_progress:
-		if Engine.get_frames_drawn() % 30 == 0:  # Twice per second
+	if network_manager and network_manager.is_server() and is_race_in_progress:
+		if Engine.get_frames_drawn() % 30 == 0: # Twice per second
 			sync_all_player_laps()
 			
 func sync_all_player_laps():
-	if not multiplayer.is_server():
+	if not network_manager.is_server():
 		return
 		
 	for player in player_laps.keys():

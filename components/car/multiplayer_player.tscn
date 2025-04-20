@@ -36,6 +36,8 @@ properties/7/replication_mode = 1
 
 [node name="MultiplayerPlayer" type="CharacterBody3D" groups=["players"]]
 script = ExtResource("1_kj7hs")
+collision_weight = null
+collision_bounce = null
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 shape = SubResource("BoxShape3D_eewva")

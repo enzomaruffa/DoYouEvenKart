@@ -3,15 +3,19 @@ extends Node3D
 
 signal pass_completed(player)
 
-@export var starting_grid_width: float = 4.0  # Width of zigzag pattern
-@export var grid_spacing: float = 2.0  # Space between cars in grid
-@export var player_spawner: Node  # Reference to the PlayerSpawner
+@export var starting_grid_width: float = 4.0 # Width of zigzag pattern
+@export var grid_spacing: float = 2.0 # Space between cars in grid
+@export var player_spawner: Node # Reference to the PlayerSpawner
 
 @onready var entry_area = $Entry
 @onready var exit_area = $Exit
+@onready var network_manager = get_node_or_null("/root/NetworkManager")
 
 var players_in_checkpoint = []
 
+# Helper functions for standardized authority checks (Option A implementation)
+func is_server() -> bool:
+	return network_manager != null && network_manager.is_server()
 
 func _on_entry_body_entered(body):
 	# Only track actual player bodies
@@ -54,13 +58,13 @@ func _on_player_spawned(id, player_instance, position_index):
 		player_instance.start_rotation = transform.basis.get_rotation_quaternion()
 		
 		# If we're the server and not positioning our own player, notify other clients
-		if multiplayer.is_server() and id != multiplayer.get_unique_id():
+		if is_server() and id != multiplayer.get_unique_id():
 			rpc_id(id, "sync_player_position", id, transform.origin, transform.basis.get_rotation_quaternion())
 
 @rpc("authority", "reliable")
 func sync_player_position(player_id, pos, rot):
 	# Find the player by ID and update position if needed (for late joiners)
-	if not multiplayer.is_server():
+	if not is_server():
 		for player in get_tree().get_nodes_in_group("players"):
 			if player.player_id == player_id:
 				player.global_position = pos
@@ -76,17 +80,17 @@ func _on_all_players_spawned():
 func get_start_position(position_index):
 	var start_pos = position
 	var forward_dir = get_global_transform().basis.z
-	var right_dir = -get_global_transform().basis.x
+	var right_dir = - get_global_transform().basis.x
 
 	var row = position_index / 2
 	var column = position_index % 2
 
 	var offset = forward_dir * (row * grid_spacing + 5.0)
-	offset += right_dir * (column * starting_grid_width - starting_grid_width/2)
+	offset += right_dir * (column * starting_grid_width - starting_grid_width / 2)
 	
 	# Return a Transform3D with position and rotation facing start line
 	var transform = Transform3D()
-	transform.origin = start_pos + offset + Vector3(0, 2, 0)  # Lower the spawn height to prevent jump
+	transform.origin = start_pos + offset + Vector3(0, 2, 0) # Lower the spawn height to prevent jump
 	transform.basis = Basis.looking_at(-forward_dir)
 	
 	return transform

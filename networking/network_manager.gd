@@ -19,8 +19,15 @@ var my_info = {
 	"name": "",
 	"color": Color.BLUE,
 	"ready": false,
-	"id": -1,
+	"id": - 1,
 }
+
+# Standard authority check helper functions (Option A implementation)
+func is_server() -> bool:
+	return multiplayer.has_multiplayer_peer() and multiplayer.is_server()
+
+func is_authority_for_player(player_id: int) -> bool:
+	return multiplayer.get_unique_id() == player_id
 
 func _ready():
 	multiplayer.peer_connected.connect(_on_player_connected)
@@ -99,7 +106,7 @@ func register_player(info):
 	add_player(info)
 	
 	# If we're the host, sync all existing players to the new player
-	if multiplayer.is_server():
+	if is_server():
 		for id in players:
 			if id == multiplayer.get_unique_id():
 				continue # Don't send our own info to ourselves
@@ -125,7 +132,6 @@ func set_player_ready(is_ready):
 func is_everyone_ready():
 	# if players.size() < 2:
 	# 	return false
-		
 	for id in players:
 		if not players[id].ready:
 			return false
