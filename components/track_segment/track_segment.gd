@@ -18,16 +18,22 @@ extends StaticBody3D
 		_update_material()
 
 func _enter_tree():
+	print(name, "TrackSegment: Entering tree")
 	if Engine.is_editor_hint():
 		_ensure_children()
+		_update_mesh()
+		_update_material()
+		_update_collision()
 
 func _ready():
+	print(name, "TrackSegment: Ready")
 	_ensure_children()
 	_update_mesh()
 	_update_material()
 	_update_collision()
 
 func _ensure_children():
+	print(name, "TrackSegment: Ensuring children")
 	if not has_node("CollisionShape3D"):
 		var collision = CollisionShape3D.new()
 		collision.name = "CollisionShape3D"
@@ -35,6 +41,7 @@ func _ensure_children():
 		if Engine.is_editor_hint():
 			collision.owner = get_tree().edited_scene_root
 
+	print(name, "TrackSegment: Ensuring children - CollisionShape3D added")
 	if not has_node("MeshInstance3D"):
 		var mesh_instance = MeshInstance3D.new()
 		mesh_instance.name = "MeshInstance3D"
@@ -43,14 +50,17 @@ func _ensure_children():
 			mesh_instance.owner = get_tree().edited_scene_root
 
 func _update_mesh():
+	print(name, "TrackSegment: Updating mesh")
 	if not has_node("MeshInstance3D"):
 		return
 
 	if custom_mesh:
 		$MeshInstance3D.mesh = custom_mesh
+		$MeshInstance3D.transform = Transform3D.IDENTITY
 		_update_material()
 
 func _update_material():
+	print(name, "TrackSegment: Updating material")
 	if not has_node("MeshInstance3D") or not custom_mesh:
 		return
 
@@ -83,6 +93,7 @@ func create_checkered_material():
 	return material
 
 func _update_collision():
+	print(name, "TrackSegment: Updating collision")
 	if not has_node("CollisionShape3D") or not custom_mesh:
 		return
 
@@ -92,6 +103,7 @@ func _update_collision():
 		if mesh_faces.size() > 0:
 			shape.set_faces(mesh_faces)
 			$CollisionShape3D.shape = shape
+			$CollisionShape3D.transform = Transform3D.IDENTITY
 
 func get_track_material() -> TrackMaterial:
 	return track_material
